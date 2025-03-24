@@ -20,7 +20,7 @@
     </div>
 
     <script>
-        window.clickTag = "https://www.lenovo.com/sg/en/"; // Biến clickTag toàn cục cho Google Ads
+        window.clickTag = "https://www.lenovo.com/sg/en/";
 
         var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
 
@@ -71,27 +71,27 @@
             AdobeAn.compositionLoaded(lib.properties.id);
             fnStartAnimation();
 
-            // 🎯 Click toàn bộ banner để mở URL
+            // 🎯 Click vào banner mở URL (ngoại trừ nút Replay)
             anim_container.addEventListener("click", function(evt) {
-                if (evt.target !== exportRoot.btn_replay) { // ✅ Nếu không phải nút Replay thì mới mở URL
+                if (!exportRoot.btn_replay || evt.target !== exportRoot.btn_replay) {
                     window.open(window.clickTag, '_blank');
                 }
             });
 
-            // 🎯 Xử lý nút Replay (Đảm bảo hoạt động)
-            setTimeout(function() {
-                if (exportRoot.btn_replay) {
-                    exportRoot.btn_replay.cursor = "pointer"; // Hiển thị con trỏ tay
-                    exportRoot.btn_replay.mouseEnabled = true; // ✅ Cho phép click
+            // 🎯 Kiểm tra liên tục nếu nút Replay đã load thì gán sự kiện
+            stage.on("tick", function() {
+                if (exportRoot.btn_replay && !exportRoot.btn_replay._hasEventListener) {
+                    exportRoot.btn_replay.cursor = "pointer";
+                    exportRoot.btn_replay.mouseEnabled = true;
+                    exportRoot.btn_replay._hasEventListener = true; // Ngăn chặn gán nhiều lần
                     exportRoot.btn_replay.addEventListener("click", function(evt) {
-                        evt.stopPropagation(); // ❌ Ngăn chặn click mở URL
+                        evt.stopPropagation();
                         evt.preventDefault();
-                        exportRoot.gotoAndPlay(0); // 🔄 Replay banner từ đầu
+                        exportRoot.gotoAndPlay(0);
                     });
-                } else {
-                    console.error("⚠️ btn_replay không tồn tại, kiểm tra lại tên nút trong Animate.");
+                    console.log("✅ Nút Replay đã gán sự kiện thành công!");
                 }
-            }, 500);
+            });
         }
     </script>
 </body>
