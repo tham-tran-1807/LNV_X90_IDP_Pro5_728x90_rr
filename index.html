@@ -1,100 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="authoring-tool" content="Adobe_Animate_CC">
-<title>LNV_X90_IDP_Pro5_728x90</title>
-
-<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
-<script src="LNV_X90_IDP_Pro5_728x90.js"></script>
-
-<script>
-var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
-var clickTag = "https://www.lenovo.com/sg/en/";
-
-function init() {
-    canvas = document.getElementById("canvas");
-    anim_container = document.getElementById("animation_container");
-    dom_overlay_container = document.getElementById("dom_overlay_container");
-
-    // 🔥 Đảm bảo overlay không chặn sự kiện của nút replay
-    dom_overlay_container.style.pointerEvents = "none";
-
-    var comp = AdobeAn.getComposition("6C3FFE19E964DA45A00230ABB631043C");
-    var lib = comp.getLibrary();
-    var loader = new createjs.LoadQueue(false);
-    loader.addEventListener("fileload", function(evt){handleFileLoad(evt, comp)});
-    loader.addEventListener("complete", function(evt){handleComplete(evt, comp)});
-    loader.loadManifest(lib.properties.manifest);
-}
-
-function handleFileLoad(evt, comp) {
-    var images = comp.getImages();
-    if (evt && (evt.item.type == "image")) { images[evt.item.id] = evt.result; }
-}
-
-function handleComplete(evt, comp) {
-    var lib = comp.getLibrary();
-    var ss = comp.getSpriteSheet();
-    var queue = evt.target;
-    var ssMetadata = lib.ssMetadata;
-    for (var i = 0; i < ssMetadata.length; i++) {
-        ss[ssMetadata[i].name] = new createjs.SpriteSheet({ 
-            "images": [queue.getResult(ssMetadata[i].name)], 
-            "frames": ssMetadata[i].frames 
-        });
-    }
-
-    exportRoot = new lib.LNV_X90_IDP_Pro5_728x90_rp();
-    stage = new lib.Stage(canvas);
-    stage.enableMouseOver();
-
-    fnStartAnimation = function() {
-        stage.addChild(exportRoot);
-        createjs.Ticker.framerate = lib.properties.fps;
-        createjs.Ticker.addEventListener("tick", stage);
-    };
-
-    AdobeAn.makeResponsive(false, 'both', false, 1, [canvas, anim_container, dom_overlay_container]);
-    AdobeAn.compositionLoaded(lib.properties.id);
-    fnStartAnimation();
-
-    // 🎯 Xử lý nút Replay
-    setTimeout(function() {
-        if (exportRoot.btn_replay) {
-            exportRoot.btn_replay.cursor = "pointer"; // Hiển thị con trỏ tay
-            exportRoot.btn_replay.addEventListener("click", function(evt) {
-                evt.stopPropagation(); // ✅ Ngăn chặn mở URL
-                exportRoot.gotoAndPlay(0); // 🔄 Replay banner từ đầu
-            });
-
-            // 🔥 Đảm bảo nút Replay không bị chặn
-            exportRoot.btn_replay.mouseEnabled = true;
-        } else {
-            console.error("⚠️ btn_replay không tồn tại, kiểm tra lại tên nút trong Animate.");
-        }
-    }, 500);
-
-    // 🎯 Click vào banner mở URL (chỉ khi không nhấn vào nút Replay)
-    document.getElementById("animation_container").addEventListener("click", function(evt) {
-        if (!evt.defaultPrevented) {
-            window.open(clickTag, "_blank");
-        }
-    });
-}
-</script>
-
-<style>
-    body { margin: 0; overflow: hidden; }
-    #animation_container { width: 728px; height: 90px; cursor: pointer; position: relative; }
-    #dom_overlay_container { pointer-events: none; }
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="authoring-tool" content="Adobe_Animate_CC">
+    <title>LNV_X90_IDP_Pro5_728x90</title>
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+    <script src="LNV_X90_IDP_Pro5_728x90.js"></script>
 </head>
-<body onload="init();">
-    <div id="animation_container">
-        <canvas id="canvas" width="728" height="90" style="position: absolute; display: block;"></canvas>
-        <div id="dom_overlay_container" style="overflow:hidden; width:728px; height:90px; position: absolute; left: 0px; top: 0px;"></div>
-    </div>
+<body onload="init();" style="margin:0px;">
+    <!-- ✅ Bọc banner trong thẻ <a> để Google Ads nhận diện -->
+    <a href="javascript:void(0);" onclick="window.open(window.clickTag, '_blank');" style="display: inline-block;">
+        <div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:728px; height:90px">
+            <canvas id="canvas" width="728" height="90" style="position: absolute; display: block; background-color:rgba(255, 255, 255, 1.00);"></canvas>
+            <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:728px; height:90px; position: absolute; left: 0px; top: 0px; display: block;"></div>
+        </div>
+    </a>
+
+    <script>
+        window.clickTag = "https://www.lenovo.com/sg/en/"; // Google Ads yêu cầu biến toàn cục
+
+        var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+
+        function init() {
+            canvas = document.getElementById("canvas");
+            anim_container = document.getElementById("animation_container");
+            dom_overlay_container = document.getElementById("dom_overlay_container");
+
+            var comp = AdobeAn.getComposition("6C3FFE19E964DA45A00230ABB631043C");
+            var lib = comp.getLibrary();
+            var loader = new createjs.LoadQueue(false);
+            loader.addEventListener("fileload", function(evt) { handleFileLoad(evt, comp); });
+            loader.addEventListener("complete", function(evt) { handleComplete(evt, comp); });
+            loader.loadManifest(lib.properties.manifest);
+        }
+
+        function handleFileLoad(evt, comp) {
+            var images = comp.getImages();
+            if (evt && (evt.item.type === "image")) {
+                images[evt.item.id] = evt.result;
+            }
+        }
+
+        function handleComplete(evt, comp) {
+            var lib = comp.getLibrary();
+            var ss = comp.getSpriteSheet();
+            var queue = evt.target;
+            var ssMetadata = lib.ssMetadata;
+
+            for (var i = 0; i < ssMetadata.length; i++) {
+                ss[ssMetadata[i].name] = new createjs.SpriteSheet({
+                    "images": [queue.getResult(ssMetadata[i].name)],
+                    "frames": ssMetadata[i].frames
+                });
+            }
+
+            exportRoot = new lib.LNV_X90_IDP_Pro5_728x90_rp();
+            stage = new lib.Stage(canvas);
+            stage.enableMouseOver();
+
+            // ✅ Không cần sự kiện click JavaScript, vì đã có thẻ <a>
+            fnStartAnimation = function() {
+                stage.addChild(exportRoot);
+                createjs.Ticker.framerate = lib.properties.fps;
+                createjs.Ticker.addEventListener("tick", stage);
+            };
+
+            AdobeAn.makeResponsive(false, 'both', false, 1, [canvas, anim_container, dom_overlay_container]);
+            AdobeAn.compositionLoaded(lib.properties.id);
+            fnStartAnimation();
+        }
+    </script>
 </body>
 </html>
