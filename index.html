@@ -16,6 +16,10 @@ function init() {
     canvas = document.getElementById("canvas");
     anim_container = document.getElementById("animation_container");
     dom_overlay_container = document.getElementById("dom_overlay_container");
+
+    // 🔥 Tránh chặn sự kiện của nút replay
+    dom_overlay_container.style.pointerEvents = "none";
+
     var comp = AdobeAn.getComposition("6C3FFE19E964DA45A00230ABB631043C");
     var lib = comp.getLibrary();
     var loader = new createjs.LoadQueue(false);
@@ -55,18 +59,23 @@ function handleComplete(evt, comp) {
     AdobeAn.compositionLoaded(lib.properties.id);
     fnStartAnimation();
 
-    // 🎯 Click vào banner mở URL
-    document.getElementById("animation_container").addEventListener("click", function() {
+    // 🎯 Xử lý nút Replay TRƯỚC khi gán clickTag
+    setTimeout(function() {
+        if (exportRoot.btn_replay) {
+            exportRoot.btn_replay.cursor = "pointer"; // Hiển thị con trỏ tay
+            exportRoot.btn_replay.addEventListener("click", function(evt) {
+                evt.stopPropagation(); // ✅ Ngăn chặn mở URL
+                exportRoot.gotoAndPlay(0); // 🔄 Replay banner từ đầu
+            });
+        } else {
+            console.error("⚠️ btn_replay không tồn tại, kiểm tra lại tên nút trong Animate.");
+        }
+    }, 500);
+
+    // 🎯 Click vào banner mở URL (sau khi xử lý replay)
+    document.getElementById("animation_container").addEventListener("click", function(evt) {
         window.open(clickTag, "_blank");
     });
-
-    // 🎯 Xử lý nút Replay
-    if (exportRoot.btn_replay) {
-        exportRoot.btn_replay.addEventListener("click", function(evt) {
-            evt.stopPropagation(); // Ngăn chặn sự kiện click lan ra ngoài
-            exportRoot.gotoAndPlay(0); // Chạy lại banner từ đầu
-        });
-    }
 }
 </script>
 
