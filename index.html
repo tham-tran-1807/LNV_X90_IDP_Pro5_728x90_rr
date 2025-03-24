@@ -6,18 +6,24 @@
     <title>LNV_X90_IDP_Pro5_728x90</title>
     <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
     <script src="LNV_X90_IDP_Pro5_728x90.js"></script>
+    <style>
+        body { margin: 0; }
+        #animation_container { position: relative; width: 728px; height: 90px; cursor: pointer; }
+        #dom_overlay_container { pointer-events: none; position: absolute; width: 728px; height: 90px; top: 0; left: 0; }
+    </style>
 </head>
-<body onload="init();" style="margin:0px;">
-    <!-- ✅ Bọc banner trong thẻ <a> để Google Ads nhận diện -->
-    <a href="javascript:void(0);" onclick="window.open(window.clickTag, '_blank');" style="display: inline-block;">
-        <div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:728px; height:90px">
-            <canvas id="canvas" width="728" height="90" style="position: absolute; display: block; background-color:rgba(255, 255, 255, 1.00);"></canvas>
-            <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:728px; height:90px; position: absolute; left: 0px; top: 0px; display: block;"></div>
+<body onload="init();">
+
+    <!-- ✅ Bọc toàn bộ banner trong thẻ <a> -->
+    <a href="javascript:void(0);" id="clickArea" onclick="window.open(window.clickTag, '_blank');">
+        <div id="animation_container">
+            <canvas id="canvas" width="728" height="90" style="position: absolute;"></canvas>
+            <div id="dom_overlay_container"></div>
         </div>
     </a>
 
     <script>
-        window.clickTag = "https://www.lenovo.com/sg/en/"; // Google Ads yêu cầu biến toàn cục
+        window.clickTag = "https://www.lenovo.com/sg/en/"; // Google yêu cầu biến clickTag toàn cục
 
         var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
 
@@ -36,7 +42,7 @@
 
         function handleFileLoad(evt, comp) {
             var images = comp.getImages();
-            if (evt && (evt.item.type === "image")) {
+            if (evt && evt.item.type === "image") {
                 images[evt.item.id] = evt.result;
             }
         }
@@ -58,7 +64,6 @@
             stage = new lib.Stage(canvas);
             stage.enableMouseOver();
 
-            // ✅ Không cần sự kiện click JavaScript, vì đã có thẻ <a>
             fnStartAnimation = function() {
                 stage.addChild(exportRoot);
                 createjs.Ticker.framerate = lib.properties.fps;
@@ -68,6 +73,23 @@
             AdobeAn.makeResponsive(false, 'both', false, 1, [canvas, anim_container, dom_overlay_container]);
             AdobeAn.compositionLoaded(lib.properties.id);
             fnStartAnimation();
+
+            // 🔥 Xử lý nút Replay
+            setTimeout(function() {
+                if (exportRoot.btn_replay) {
+                    exportRoot.btn_replay.cursor = "pointer"; // Hiển thị con trỏ tay
+                    exportRoot.btn_replay.addEventListener("click", function(evt) {
+                        evt.stopPropagation(); // ❌ Ngăn chặn click lan ra thẻ <a>
+                        evt.preventDefault();  // ❌ Ngăn chặn mở URL
+                        exportRoot.gotoAndPlay(0); // 🔄 Replay banner từ đầu
+                    });
+
+                    // ✅ Bỏ pointer-events trên nút Replay để nó không bị chặn
+                    exportRoot.btn_replay.mouseEnabled = true;
+                } else {
+                    console.error("⚠️ btn_replay không tồn tại, kiểm tra lại tên nút trong Animate.");
+                }
+            }, 500);
         }
     </script>
 </body>
