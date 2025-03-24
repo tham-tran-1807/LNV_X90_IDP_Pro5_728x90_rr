@@ -17,7 +17,7 @@ function init() {
     anim_container = document.getElementById("animation_container");
     dom_overlay_container = document.getElementById("dom_overlay_container");
 
-    // 🔥 Tránh chặn sự kiện của nút replay
+    // 🔥 Đảm bảo overlay không chặn sự kiện của nút replay
     dom_overlay_container.style.pointerEvents = "none";
 
     var comp = AdobeAn.getComposition("6C3FFE19E964DA45A00230ABB631043C");
@@ -59,7 +59,7 @@ function handleComplete(evt, comp) {
     AdobeAn.compositionLoaded(lib.properties.id);
     fnStartAnimation();
 
-    // 🎯 Xử lý nút Replay TRƯỚC khi gán clickTag
+    // 🎯 Xử lý nút Replay
     setTimeout(function() {
         if (exportRoot.btn_replay) {
             exportRoot.btn_replay.cursor = "pointer"; // Hiển thị con trỏ tay
@@ -67,28 +67,34 @@ function handleComplete(evt, comp) {
                 evt.stopPropagation(); // ✅ Ngăn chặn mở URL
                 exportRoot.gotoAndPlay(0); // 🔄 Replay banner từ đầu
             });
+
+            // 🔥 Đảm bảo nút Replay không bị chặn
+            exportRoot.btn_replay.mouseEnabled = true;
         } else {
             console.error("⚠️ btn_replay không tồn tại, kiểm tra lại tên nút trong Animate.");
         }
     }, 500);
 
-    // 🎯 Click vào banner mở URL (sau khi xử lý replay)
+    // 🎯 Click vào banner mở URL (chỉ khi không nhấn vào nút Replay)
     document.getElementById("animation_container").addEventListener("click", function(evt) {
-        window.open(clickTag, "_blank");
+        if (!evt.defaultPrevented) {
+            window.open(clickTag, "_blank");
+        }
     });
 }
 </script>
 
 <style>
     body { margin: 0; overflow: hidden; }
-    #animation_container { width: 728px; height: 90px; cursor: pointer; }
+    #animation_container { width: 728px; height: 90px; cursor: pointer; position: relative; }
+    #dom_overlay_container { pointer-events: none; }
 </style>
 
 </head>
 <body onload="init();">
     <div id="animation_container">
         <canvas id="canvas" width="728" height="90" style="position: absolute; display: block;"></canvas>
-        <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:728px; height:90px; position: absolute; left: 0px; top: 0px;"></div>
+        <div id="dom_overlay_container" style="overflow:hidden; width:728px; height:90px; position: absolute; left: 0px; top: 0px;"></div>
     </div>
 </body>
 </html>
